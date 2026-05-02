@@ -1,3 +1,4 @@
+// app/telehealth-doctors/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -10,6 +11,7 @@ export function TelehealthContent() {
 
   return (
     <div>
+      {/* Your existing JSX remains exactly the same */}
       <section className="border-b border-graphite px-6 md:px-10 py-20 max-w-[1480px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-7">
@@ -131,4 +133,9 @@ function Panel({
       </ul>
     </div>
   );
+}
+
+// ✅ ADD THIS - Default export for Next.js page
+export default function TelehealthDoctorsPage() {
+  return <TelehealthContent />;
 }
