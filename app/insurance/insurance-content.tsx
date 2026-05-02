@@ -1,19 +1,28 @@
-// app/insurance/insurance-content.tsx
 "use client";
 
-import { useState } from "react";
-import { insurances, doctors } from "@/data/doctors";
+import { useState, useEffect } from "react";
+import { insurances } from "@/data/doctors";
+import { useDoctors } from "@/lib/useDoctors";
+import Link from "next/link";
 
 export function InsuranceContent() {
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const { doctors, loading } = useDoctors({ limit: 50 });
 
   const filtered = insurances.filter((i) =>
     i.toLowerCase().includes(q.toLowerCase())
   );
+
   const matching = selected
     ? doctors.filter((d) => d.insurances.includes(selected))
     : [];
+
+  // Compute live counts
+  const counts: Record<string, number> = {};
+  for (const ins of insurances) {
+    counts[ins] = doctors.filter((d) => d.insurances.includes(ins)).length;
+  }
 
   return (
     <div className="px-6 md:px-10 py-16 max-w-[1480px] mx-auto">
@@ -48,9 +57,7 @@ export function InsuranceContent() {
           <ul className="border border-graphite divide-y divide-graphite">
             {filtered.map((ins) => {
               const on = ins === selected;
-              const count = doctors.filter((d) =>
-                d.insurances.includes(ins)
-              ).length;
+              const count = loading ? "···" : counts[ins] || 0;
               return (
                 <li key={ins}>
                   <button
@@ -63,7 +70,7 @@ export function InsuranceContent() {
                       <span
                         className={`size-2 rounded-full transition-all ${
                           on
-                            ? "bg-lume lume-glow"
+                            ? "bg-lume"
                             : "bg-graphite-soft group-hover:bg-silver"
                         }`}
                       />
@@ -88,7 +95,7 @@ export function InsuranceContent() {
         <div className="lg:col-span-7">
           {selected ? (
             <div>
-              <div className="border border-graphite p-8 mb-8 grain relative">
+              <div className="border border-graphite p-8 mb-8 relative">
                 <div className="font-mono text-[10px] text-lume tracking-[0.25em] uppercase mb-3">
                   Selected Carrier
                 </div>
@@ -101,7 +108,11 @@ export function InsuranceContent() {
                       Practitioners
                     </div>
                     <div className="text-2xl text-lume tabular-nums">
-                      {matching.length}
+                      {loading ? (
+                        <span className="animate-pulse">···</span>
+                      ) : (
+                        matching.length
+                      )}
                     </div>
                   </div>
                   <div>
@@ -114,7 +125,13 @@ export function InsuranceContent() {
                     <div className="text-[9px] text-silver tracking-widest uppercase mb-1">
                       Verified
                     </div>
-                    <div className="text-bone">Apr 28, 2026</div>
+                    <div className="text-bone">
+                      {new Date().toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -122,26 +139,39 @@ export function InsuranceContent() {
               <div className="font-mono text-[10px] text-silver tracking-[0.22em] uppercase border-b border-graphite pb-3 mb-6">
                 Accepting practitioners
               </div>
-              <ul className="space-y-3">
-                {matching.map((d) => (
-                  <li
-                    key={d.id}
-                    className="border border-graphite p-5 flex items-center justify-between hover:border-lume transition-colors"
-                  >
-                    <div>
-                      <div className="font-display text-2xl text-bone">
-                        Dr. {d.name}, {d.credentials}
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="border border-graphite p-5 h-16 animate-pulse bg-graphite/10"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <ul className="space-y-3">
+                  {matching.map((d) => (
+                    <li
+                      key={d.id}
+                      className="border border-graphite p-5 flex items-center justify-between hover:border-lume transition-colors"
+                    >
+                      <div>
+                        <Link href={`/doctor/${d.id}`}>
+                          <div className="font-display text-2xl text-bone hover:text-lume transition-colors cursor-pointer">
+                            Dr. {d.name}, {d.credentials}
+                          </div>
+                        </Link>
+                        <div className="font-mono text-[10px] text-silver tracking-widest uppercase mt-1">
+                          {d.specialty} · {d.distance}
+                        </div>
                       </div>
-                      <div className="font-mono text-[10px] text-silver tracking-widest uppercase mt-1">
-                        {d.specialty} · {d.distance}
+                      <div className="font-mono text-[10px] text-lume tracking-widest uppercase">
+                        In-network ✓
                       </div>
-                    </div>
-                    <div className="font-mono text-[10px] text-lume tracking-widest uppercase">
-                      In-network ✓
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ) : (
             <div className="border border-dashed border-graphite p-16 text-center">

@@ -1,181 +1,134 @@
-// src/app/telehealth-doctors/page.tsx
-import type { Metadata } from "next";
-import { SEO_PAGES, generateFAQSchema } from "@/lib/seo";
-import SeoPageLayout from "@/components/SeoPageLayout";
+"use client";
 
-export const metadata: Metadata = {
-  title: SEO_PAGES.telehealthDoctors.title,
-  description: SEO_PAGES.telehealthDoctors.description,
-  keywords: SEO_PAGES.telehealthDoctors.keywords,
-  alternates: { canonical: SEO_PAGES.telehealthDoctors.canonical },
-  openGraph: {
-    title: SEO_PAGES.telehealthDoctors.title,
-    description: SEO_PAGES.telehealthDoctors.description,
-    url: SEO_PAGES.telehealthDoctors.canonical,
-  },
-};
+import Link from "next/link";
+import { useDoctors } from "@/lib/useDoctors";
+import { DoctorRow } from "@/components/doctor-card";
 
-const faqs = [
-  {
-    question: "What conditions can a telehealth primary care doctor treat?",
-    answer:
-      "Telehealth primary care doctors can treat a wide range of conditions including colds, flu, allergies, sinus infections, UTIs, rashes, anxiety, depression, prescription refills, and chronic disease management for conditions like diabetes and hypertension.",
-  },
-  {
-    question: "Is telehealth primary care covered by insurance?",
-    answer:
-      "Most major insurance plans now cover telehealth visits, including Medicare and Medicaid. Coverage expanded significantly after 2020. Always verify your specific plan before booking, which you can do directly on PrimaryCare.Bot.",
-  },
-  {
-    question: "How do I prepare for a telehealth primary care appointment?",
-    answer:
-      "Find a private, quiet space with good lighting. Test your device's camera and microphone beforehand. Have your insurance card, current medication list, and any relevant symptoms noted. Most visits take 15–30 minutes.",
-  },
-  {
-    question: "Can a telehealth doctor send prescriptions to my pharmacy?",
-    answer:
-      "Yes. Licensed primary care physicians can send electronic prescriptions directly to your preferred pharmacy during a telehealth visit, with the exception of certain controlled substances in some states.",
-  },
-];
+export function TelehealthContent() {
+  const { doctors, loading, source } = useDoctors({ limit: 30 });
+  const teleDocs = doctors.filter((d) => d.telehealth);
 
-export default function TelehealthDoctorsPage() {
   return (
-    <SeoPageLayout
-      breadcrumbs={[{ name: "Telehealth Doctors", url: "/telehealth-doctors" }]}
-      schemas={[generateFAQSchema(faqs)]}
-    >
-      <h1>Telehealth Primary Care Doctors: Virtual Visits From Home</h1>
+    <div>
+      <section className="border-b border-graphite px-6 md:px-10 py-20 max-w-[1480px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+          <div className="lg:col-span-7">
+            <div className="font-mono text-[10px] tracking-[0.25em] text-lume uppercase mb-3">
+              § 04 — Modality
+            </div>
+            <h1 className="font-display text-6xl md:text-7xl font-light leading-[0.95]">
+              Care without <span className="italic text-lume">geography.</span>
+            </h1>
+          </div>
+          <div className="lg:col-span-5">
+            <p className="text-silver leading-relaxed">
+              Telehealth is not a fallback. For chronic management, medication
+              adjustment, mental health continuity, and most preventive
+              consultations, video care is clinically equivalent to in-person.
+            </p>
+          </div>
+        </div>
 
-      <p className="lead">
-        Connect with board-certified primary care physicians via video or phone
-        — no commute, no waiting room. PrimaryCare.Bot makes it easy to find and
-        book telehealth appointments that fit your schedule.
-      </p>
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-px bg-graphite border border-graphite">
+          <Panel
+            title="Telehealth"
+            tag="Recommended for"
+            items={[
+              "Chronic condition follow-up (diabetes, hypertension)",
+              "Medication review & adjustment",
+              "Mental health & talk therapy",
+              "Lab result interpretation",
+              "Minor acute concerns (rashes, congestion)",
+              "Second opinions",
+            ]}
+          />
+          <Panel
+            title="In-Person"
+            tag="Required for"
+            items={[
+              "Annual physical examinations",
+              "Procedures, biopsies, injections",
+              "Imaging that requires presence",
+              "Vaccinations & immunizations",
+              "Acute pain requiring palpation",
+              "Pediatric well-child visits",
+            ]}
+          />
+        </div>
+      </section>
 
-      <h2>What Is Telehealth Primary Care?</h2>
-      <p>
-        Telehealth primary care allows you to see a licensed physician through a
-        secure video call or phone consultation. These virtual visits cover the
-        same spectrum of care as in-person appointments for many conditions —
-        from diagnosing a sore throat to managing ongoing chronic conditions
-        like high blood pressure or type 2 diabetes.
-      </p>
-      <p>
-        According to the American Medical Association, telehealth adoption
-        surged dramatically in recent years and has remained elevated as
-        patients discovered its convenience, lower costs, and comparable quality
-        of care for appropriate conditions.
-      </p>
+      <section className="px-6 md:px-10 py-20 max-w-[1480px] mx-auto">
+        <div className="flex items-baseline justify-between border-b border-graphite pb-5 mb-12 font-mono text-[10px] tracking-[0.22em] uppercase text-silver">
+          <span>Telehealth-capable practitioners</span>
+          <span>
+            Results:{" "}
+            <span className="text-lume tabular-nums">
+              {loading ? "···" : String(teleDocs.length).padStart(3, "0")}
+            </span>
+          </span>
+        </div>
 
-      <h2>When Telehealth Is the Right Choice</h2>
-      <p>Telehealth primary care is ideal for:</p>
-      <ul>
-        <li>
-          <strong>Common illnesses</strong> — Colds, flu, allergies, sinus
-          infections, and ear infections
-        </li>
-        <li>
-          <strong>Urinary tract infections</strong> — Diagnosis and prescription
-          without an in-office visit
-        </li>
-        <li>
-          <strong>Mental health</strong> — Anxiety, depression, and stress
-          management support
-        </li>
-        <li>
-          <strong>Chronic disease management</strong> — Medication adjustments
-          for diabetes, hypertension, or thyroid conditions
-        </li>
-        <li>
-          <strong>Prescription refills</strong> — Renewing existing medications
-          quickly
-        </li>
-        <li>
-          <strong>Lab result reviews</strong> — Discussing test results and next
-          steps
-        </li>
-        <li>
-          <strong>Preventive care</strong> — Health coaching and lifestyle
-          counseling
-        </li>
-        <li>
-          <strong>Skin conditions</strong> — Rashes, acne, and eczema
-          assessments
-        </li>
-      </ul>
+        {loading ? (
+          <div className="flex flex-col gap-12">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="border border-graphite p-8 animate-pulse h-40"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-12">
+            {teleDocs.map((d) => (
+              <DoctorRow key={d.id} doctor={d} />
+            ))}
+          </div>
+        )}
 
-      <h2>When In-Person Care Is Needed</h2>
-      <p>
-        While telehealth covers a wide range of needs, some situations require
-        you to be seen in person. These include annual physical exams requiring
-        hands-on assessment, blood draws and lab tests, vaccinations, procedures
-        like stitches or joint injections, and chest pain or other emergency
-        symptoms.
-      </p>
-      <p>
-        PrimaryCare.Bot lets you filter by telehealth and in-person availability
-        simultaneously, so you can find doctors who offer both — giving you
-        flexibility for future visits.
-      </p>
+        <div className="mt-16 border border-graphite p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.25em] text-lume uppercase mb-2">
+              Want both?
+            </div>
+            <div className="font-display text-3xl text-bone">
+              View the entire registry — telehealth and in-person combined.
+            </div>
+          </div>
+          <Link
+            href="/directory"
+            className="bg-lume text-obsidian px-6 py-3.5 font-mono text-[10px] tracking-[0.22em] uppercase hover:bg-bone transition-colors whitespace-nowrap"
+          >
+            Open directory →
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
+}
 
-      <h2>How to Find a Telehealth Primary Care Doctor</h2>
-      <p>
-        Using PrimaryCare.Bot, finding a telehealth doctor takes under two
-        minutes:
-      </p>
-      <ol>
-        <li>Enter your ZIP code to find licensed physicians in your state</li>
-        <li>
-          Toggle the <strong>Telehealth</strong> filter to show only
-          virtual-visit providers
-        </li>
-        <li>Select your insurance plan to confirm coverage</li>
-        <li>Browse availability and book an appointment directly</li>
-      </ol>
-
-      <h2>Telehealth vs. In-Person: Cost Comparison</h2>
-      <p>
-        Telehealth visits are often cheaper than equivalent in-person
-        appointments. Without overhead costs like facility fees, telehealth
-        providers can offer lower out-of-pocket costs. For patients with
-        insurance, co-pays for telehealth are typically the same as or lower
-        than in-person primary care co-pays.
-      </p>
-      <p>
-        For uninsured patients, telehealth platforms often offer transparent
-        flat-rate pricing ranging from $59 to $150 per visit, compared to
-        $150–$350 for a typical in-office visit.
-      </p>
-
-      <h2>Telehealth and Insurance: What You Need to Know</h2>
-      <p>
-        All Medicare, Medicaid, and most private insurance plans now cover
-        telehealth primary care visits. The key is confirming that your specific
-        plan covers the telehealth platform you choose. PrimaryCare.Bot's
-        insurance lookup tool lets you filter by your exact plan to see only
-        doctors whose telehealth services are covered.
-      </p>
-
-      <div className="cta-block">
-        <h2>Find a Telehealth Doctor Now</h2>
-        <p>
-          Enter your ZIP code to browse available telehealth primary care
-          providers in your state.
-        </p>
-        <a href="/find-doctor?type=telehealth" className="btn-primary">
-          Search Telehealth Doctors →
-        </a>
+function Panel({
+  title,
+  tag,
+  items,
+}: {
+  title: string;
+  tag: string;
+  items: string[];
+}) {
+  return (
+    <div className="bg-obsidian p-8 md:p-10">
+      <div className="font-mono text-[10px] text-lume tracking-[0.25em] uppercase mb-2">
+        {tag}
       </div>
-
-      <h2>Frequently Asked Questions</h2>
-      <div className="faq-list">
-        {faqs.map((faq) => (
-          <details key={faq.question} className="faq-item">
-            <summary>{faq.question}</summary>
-            <p>{faq.answer}</p>
-          </details>
+      <h3 className="font-display text-4xl text-bone mb-6">{title}</h3>
+      <ul className="space-y-3">
+        {items.map((i) => (
+          <li key={i} className="flex items-start gap-3 text-silver">
+            <span className="size-1 rounded-full bg-lume mt-2.5 shrink-0" />
+            <span>{i}</span>
+          </li>
         ))}
-      </div>
-    </SeoPageLayout>
+      </ul>
+    </div>
   );
 }

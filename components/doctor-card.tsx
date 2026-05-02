@@ -9,19 +9,7 @@ export function DoctorRow({ doctor }: { doctor: Doctor }) {
       href={`/doctor/${doctor.id}`}
       className="group grid grid-cols-1 md:grid-cols-[180px_1fr] gap-8 items-start border-t border-graphite pt-10 first:border-t-0 first:pt-0"
     >
-      <div className="bg-graphite relative overflow-hidden aspect-[4/5]">
-        <Image
-          src={doctor.portrait}
-          alt={`Portrait of Dr. ${doctor.name}`}
-          width={400}
-          height={500}
-          className="w-full h-full object-cover mix-blend-luminosity opacity-80 group-hover:opacity-100 group-hover:mix-blend-normal transition-all duration-700"
-        />
-        <div className="absolute inset-0 outline outline-1 -outline-offset-1 outline-white/10" />
-        <div className="absolute top-3 left-3 font-mono text-[9px] tracking-widest text-lume uppercase bg-obsidian/80 px-2 py-1">
-          NPI · {doctor.npi.slice(0, 4)}…
-        </div>
-      </div>
+      <div className="bg-graphite relative overflow-hidden "></div>
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-start gap-4">
           <div>

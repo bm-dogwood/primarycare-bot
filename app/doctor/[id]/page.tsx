@@ -42,7 +42,6 @@ export async function generateMetadata({ params }: DoctorPageProps) {
     openGraph: {
       title: `Dr. ${doctor.name} — ${doctor.specialty}`,
       description: doctor.bio,
-      images: [doctor.portrait],
     },
   };
 }

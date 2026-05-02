@@ -1,15 +1,25 @@
-// app/directory/directory-content.tsx
 "use client";
 
-import { useMemo, useState } from "react";
-import { doctors, insurances, specialties } from "@/data/doctors";
+import { useMemo, useState, useEffect } from "react";
+import { insurances, specialties } from "@/data/doctors";
 import { DoctorRow } from "@/components/doctor-card";
+import { useDoctors } from "@/lib/useDoctors";
 
 export function DirectoryContent() {
   const [specialty, setSpecialty] = useState<string>("All");
   const [insurance, setInsurance] = useState<string>("All");
   const [tele, setTele] = useState<"any" | "tele" | "person">("any");
   const [accepting, setAccepting] = useState<boolean>(false);
+  const [city, setCity] = useState("New York");
+  const [state] = useState("NY");
+  const [showCityPicker, setShowCityPicker] = useState(false);
+
+  const { doctors, loading, source, total } = useDoctors({
+    specialty: specialty !== "All" ? specialty : "",
+    city,
+    state,
+    limit: 25,
+  });
 
   const filtered = useMemo(() => {
     return doctors.filter((d) => {
@@ -21,20 +31,84 @@ export function DirectoryContent() {
       if (accepting && !d.acceptingNew) return false;
       return true;
     });
-  }, [specialty, insurance, tele, accepting]);
+  }, [doctors, specialty, insurance, tele, accepting]);
+
+  const CITIES = [
+    { label: "New York, NY", city: "New York", state: "NY" },
+    { label: "Los Angeles, CA", city: "Los Angeles", state: "CA" },
+    { label: "Chicago, IL", city: "Chicago", state: "IL" },
+    { label: "Houston, TX", city: "Houston", state: "TX" },
+    { label: "Boston, MA", city: "Boston", state: "MA" },
+    { label: "San Francisco, CA", city: "San Francisco", state: "CA" },
+    { label: "Seattle, WA", city: "Seattle", state: "WA" },
+    { label: "Miami, FL", city: "Miami", state: "FL" },
+  ];
 
   return (
     <div className="px-6 md:px-10 py-16 max-w-[1480px] mx-auto">
       <header className="border-b border-graphite pb-8 mb-10">
-        <div className="font-mono text-[10px] tracking-[0.25em] text-lume uppercase mb-3">
-          § 01 — Registry Index
+        <div className="font-mono text-[10px] tracking-[0.25em] text-lume uppercase mb-3 flex items-center gap-4">
+          <span>§ 01 — Registry Index</span>
+          {/* Live source indicator */}
+          <span
+            className={`flex items-center gap-1.5 ${
+              source === "nppes" ? "text-lume" : "text-silver"
+            }`}
+          >
+            <span
+              className={`size-1.5 rounded-full ${
+                source === "nppes" ? "bg-lume animate-pulse" : "bg-silver/40"
+              }`}
+            />
+            {source === "nppes" ? "Live · NPPES" : "Demo registry"}
+          </span>
         </div>
         <h1 className="font-display text-6xl md:text-7xl font-light leading-[0.95]">
           The complete <span className="italic text-lume">directory.</span>
         </h1>
-        <p className="mt-6 text-silver max-w-2xl leading-relaxed">
-          {filtered.length} practitioners match the current parameters. Adjust
-          the dials in the left column to refine the selection.
+
+        {/* City picker */}
+        <div className="mt-4 flex items-center gap-3">
+          <span className="text-silver text-sm">Searching in</span>
+          <div className="relative">
+            <button
+              onClick={() => setShowCityPicker(!showCityPicker)}
+              className="font-mono text-[10px] tracking-[0.22em] uppercase text-bone border border-graphite px-3 py-1.5 hover:border-lume transition-colors"
+            >
+              {city}, {state} ▾
+            </button>
+            {showCityPicker && (
+              <div className="absolute top-full left-0 mt-1 bg-carbon border border-graphite z-50 min-w-[200px]">
+                {CITIES.map((c) => (
+                  <button
+                    key={c.label}
+                    onClick={() => {
+                      setCity(c.city);
+                      setShowCityPicker(false);
+                    }}
+                    className="w-full text-left px-4 py-2.5 font-mono text-[10px] tracking-widest uppercase text-silver hover:text-lume hover:bg-obsidian transition-colors"
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <p className="mt-4 text-silver max-w-2xl leading-relaxed">
+          {loading ? (
+            <span className="animate-pulse">Querying NPPES registry…</span>
+          ) : (
+            <>
+              {filtered.length} practitioners match the current parameters.{" "}
+              {source === "nppes" && (
+                <span className="text-lume/60 text-xs">
+                  Real-time data from CMS NPI Registry.
+                </span>
+              )}
+            </>
+          )}
         </p>
       </header>
 
@@ -87,12 +161,31 @@ export function DirectoryContent() {
             <span>
               Results:{" "}
               <span className="text-lume tabular-nums">
-                {String(filtered.length).padStart(3, "0")}
+                {String(loading ? "···" : filtered.length).padStart(3, "0")}
               </span>
             </span>
           </div>
 
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col gap-12">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="border border-graphite p-8 animate-pulse"
+                >
+                  <div className="flex gap-8">
+                    <div className="w-24 h-32 bg-graphite" />
+                    <div className="flex-1 space-y-3">
+                      <div className="h-3 bg-graphite w-1/4" />
+                      <div className="h-8 bg-graphite w-1/2" />
+                      <div className="h-3 bg-graphite w-3/4" />
+                      <div className="h-3 bg-graphite w-2/3" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="border border-graphite p-12 text-center">
               <div className="font-display text-3xl text-bone mb-3">
                 No practitioners match.
